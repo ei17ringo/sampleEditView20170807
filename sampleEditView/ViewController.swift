@@ -9,7 +9,7 @@
 import UIKit
 
 //テキストフィールドのプロトコルを指定
-class ViewController: UIViewController,UITextFieldDelegate{
+class ViewController: UIViewController,UITextFieldDelegate,UITextViewDelegate{
 
     @IBOutlet weak var formView: UIView!
     
@@ -34,6 +34,11 @@ class ViewController: UIViewController,UITextFieldDelegate{
         
         //-----------------------------------
         
+        //DatePickerを日付モードに設定
+        myDatePicker.datePickerMode = UIDatePickerMode.date
+        //日付の選択が変更されたら、発動するイベントを設定
+        myDatePicker.addTarget(self, action: #selector(showDateSelected(sender:)), for: .valueChanged)
+        
         // baseViewにdatePickerを配置
         baseView.addSubview(myDatePicker)
         
@@ -46,6 +51,10 @@ class ViewController: UIViewController,UITextFieldDelegate{
         
         // ボタンにタイトルを設定
         closeDButton.setTitle("Close", for: .normal)
+        
+        // イベント追加 ボタンが押されたらcloseBaseViewを実行
+        closeDButton.addTarget(self, action: #selector(closeBaseView), for: .touchUpInside)
+        
         baseView.addSubview(closeDButton)
         
         // baseViewを下にピッタリ配置、動作しているデバイスと横幅を同じする
@@ -80,7 +89,7 @@ class ViewController: UIViewController,UITextFieldDelegate{
         
     }
     
-    //入力開始
+    //入力開始(textField)
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         
         print("textFieldShouldBeginEditing")
@@ -92,12 +101,28 @@ class ViewController: UIViewController,UITextFieldDelegate{
             return true
         case 2:
             //日付
+            
+            //baseViewの表示（下に隠しておくところから見える場所にもってくる）
+            UIView.animate(withDuration: 0.5, animations: {() -> Void in
+                self.baseView.frame.origin.y = self.view.frame.size.height - 250
+            
+            })
             return false
         default:
             return true
         }
         
         
+    }
+    
+    //入力開始(textView)
+    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+        
+        //form全体を上げるアニメーション
+        UIView.animate(withDuration: 0.2, animations: {() -> Void in
+            self.formView.frame.origin.y =  self.formView.frame.origin.y - 250
+        })
+        return true
     }
     
     //キーボードを閉じる
@@ -107,6 +132,28 @@ class ViewController: UIViewController,UITextFieldDelegate{
         myTitle.resignFirstResponder()
     }
 
+    //baseViewを隠す
+    func closeBaseView(){
+        UIView.animate(withDuration: 0.5, animations: {() -> Void in
+            self.baseView.frame.origin.y = self.view.frame.size.height
+        })
+    }
+    
+    //DatePickerで日付を選択した時、日付のTextFieldに値を表示
+    func showDateSelected(sender: UIDatePicker){
+    
+        //フォーマット設定（文字列に変換）
+        let df = DateFormatter()
+        df.dateFormat = "yyyy / MM / dd"
+        
+        //選択された日付を日付型から文字列型へ変換
+        let strSelectedDate = df.string(from: sender.date)
+        
+        //TextFieldに変換した文字列を表示
+        myDate.text = strSelectedDate
+        
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
