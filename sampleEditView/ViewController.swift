@@ -28,6 +28,8 @@ class ViewController: UIViewController,UITextFieldDelegate,UITextViewDelegate{
     //baseViewを閉じるためのボタン
     let closeDButton:UIButton = UIButton(type: .system)
     
+    //formViewが上がってるか下がってるか認識するflag
+    var upFlag:Bool = false //false:formViewが下がっている true:formViewが上がっている
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -118,10 +120,24 @@ class ViewController: UIViewController,UITextFieldDelegate,UITextViewDelegate{
     //入力開始(textView)
     func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
         
-        //form全体を上げるアニメーション
-        UIView.animate(withDuration: 0.2, animations: {() -> Void in
-            self.formView.frame.origin.y =  self.formView.frame.origin.y - 250
-        })
+        if upFlag {
+            //Viewが上がっている状態なので、下げる
+            //form全体を下げるアニメーション
+            UIView.animate(withDuration: 0.2, animations: {() -> Void in
+                self.formView.frame.origin.y =  self.formView.frame.origin.y + 250
+            })
+            upFlag = false
+        }else{
+            //Viewが下がってる状態なので、上げる
+            //form全体を上げるアニメーション
+            UIView.animate(withDuration: 0.2, animations: {() -> Void in
+                self.formView.frame.origin.y =  self.formView.frame.origin.y - 250
+            })
+            upFlag = true
+
+        }
+        
+        
         return true
     }
     
@@ -154,6 +170,18 @@ class ViewController: UIViewController,UITextFieldDelegate,UITextViewDelegate{
         
     }
     
+    @IBAction func tapResetButton(_ sender: UIButton) {
+        
+        if upFlag {
+            //Viewが上がっている状態なので、下げる
+            //form全体を下げるアニメーション
+            UIView.animate(withDuration: 0.2, animations: {() -> Void in
+                self.formView.frame.origin.y =  self.formView.frame.origin.y + 250
+            })
+            myContents.resignFirstResponder()
+            upFlag = false
+        }
+    }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
